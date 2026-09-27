@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>톡톡 맞춤 반 추천 진단</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+<style>
+:root{--navy:#17233f;--navy2:#243657;--teal:#0ea5a0;--teal-soft:#5cc9c4;--teal-tint:#e3f5f3;--bg1:#eef2f4;--bg2:#e4ecec;--ink:#25303f;--muted:#6a7683;--line:#dde5e6;--white:#fff;--radius:20px;--shadow:0 18px 40px -20px rgba(23,35,63,.42)}
+*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%}
+body{font-family:"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:var(--ink);background:linear-gradient(160deg,var(--bg1),var(--bg2));-webkit-font-smoothing:antialiased;line-height:1.55;padding:24px 16px 40px;min-height:100%}
+.wrap{max-width:560px;margin:0 auto}
+.brand{text-align:center;margin-bottom:18px}
+.brand .eyebrow{font-size:12px;letter-spacing:.2em;font-weight:800;color:var(--teal);text-transform:uppercase}
+.brand h1{font-size:23px;font-weight:800;color:var(--navy);margin-top:6px}
+.brand p{font-size:14px;color:var(--muted);margin-top:6px}
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px 22px;border:1px solid var(--line)}
+.progress{display:flex;gap:6px;margin-bottom:22px}
+.progress span{flex:1;height:5px;border-radius:99px;background:var(--bg2);transition:.3s}
+.progress span.on{background:var(--teal)}
+.step-label{font-size:12px;font-weight:800;letter-spacing:.12em;color:var(--teal);text-transform:uppercase}
+.step-title{font-size:19px;font-weight:800;color:var(--navy);margin:6px 0 4px}
+.step-desc{font-size:13px;color:var(--muted);margin-bottom:14px}
+.multi-hint{font-size:12px;color:var(--teal);font-weight:800;margin-bottom:14px}
+.field{margin-bottom:18px}
+.field>label{display:block;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:8px}
+input[type=text],input[type=number],select{width:100%;padding:13px 14px;font-size:15px;font-family:inherit;color:var(--ink);background:var(--bg1);border:1.5px solid var(--line);border-radius:12px;outline:none;transition:.15s}
+input:focus,select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(14,165,160,.18)}
+.hint{font-size:12px;color:var(--muted);margin-top:6px}
+.pills{display:flex;gap:8px}
+.pill{flex:1;text-align:center;cursor:pointer;padding:12px 10px;font-size:14px;font-weight:700;color:var(--navy);background:var(--bg1);border:1.5px solid var(--line);border-radius:12px;transition:.15s}
+.pill.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.noidx{margin-top:12px;display:flex;align-items:center;gap:9px;padding:12px 14px;border:1.5px dashed var(--teal-soft);border-radius:12px;cursor:pointer;background:#f5fbfa}
+.noidx.on{background:var(--teal-tint);border-style:solid;border-color:var(--teal)}
+.noidx .box{width:20px;height:20px;border-radius:6px;border:2px solid var(--line);flex:none;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff}
+.noidx.on .box{background:var(--teal);border-color:var(--teal)}
+.noidx span{font-size:13.5px;font-weight:700;color:var(--navy)}
+.agree-txt{margin-top:8px;font-size:12px;line-height:1.6;color:var(--muted);background:#f7f9fa;border-radius:10px;padding:10px 12px}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{cursor:pointer;padding:14px 16px;font-size:15px;font-weight:600;color:var(--ink);background:var(--bg1);border:1.5px solid var(--line);border-radius:13px;transition:.15s;display:flex;align-items:center;gap:11px}
+.opt:hover{border-color:var(--teal-soft);background:#fff}
+.opt.on{border-color:var(--teal);background:var(--teal-tint);color:var(--navy)}
+.opt .box{width:20px;height:20px;border-radius:6px;border:2px solid var(--line);flex:none;transition:.15s;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff}
+.opt.on .box{border-color:var(--teal);background:var(--teal)}
+.row{display:flex;gap:10px;margin-top:24px}
+.btn{flex:1;padding:15px;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;border:none;border-radius:13px;transition:.15s}
+.btn-primary{background:var(--teal);color:#fff}
+.btn-primary:hover{background:#0c8f8b}
+.btn-primary:disabled{background:var(--line);color:#9aa6ab;cursor:not-allowed}
+.btn-ghost{flex:none;padding:15px 20px;background:transparent;color:var(--muted);border:1.5px solid var(--line)}
+.btn-ghost:hover{border-color:var(--navy);color:var(--navy)}
+.err{color:#c0392b;font-size:13px;font-weight:600;margin-top:12px;text-align:center;min-height:18px}
+.result-hi{text-align:center;margin-bottom:20px}
+.result-hi .kid{font-size:14px;color:var(--muted);font-weight:600}
+.result-hi .kid b{color:var(--navy)}
+.result-hi h2{font-size:20px;font-weight:800;color:var(--navy);margin-top:4px}
+.rec{border-radius:16px;padding:20px;margin-bottom:13px;border:1.5px solid var(--line)}
+.rec.r1{background:linear-gradient(135deg,var(--navy),var(--navy2));border-color:var(--navy)}
+.rec.r2,.rec.r3{background:#fff}
+.rec.r2{border-color:var(--teal)}
+.rankrow{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.rank{font-size:12px;font-weight:800;padding:5px 11px;border-radius:99px}
+.rec.r1 .rank{background:var(--teal);color:#fff}
+.rec.r2 .rank{background:var(--teal-tint);color:var(--navy)}
+.rec.r3 .rank{background:var(--bg2);color:var(--navy)}
+.type-tag{font-size:11px;font-weight:800;padding:3px 9px;border-radius:6px}
+.tag-live{background:rgba(92,201,196,.22);color:#0c8f8b}
+.rec.r1 .tag-live{background:rgba(255,255,255,.16);color:var(--teal-soft)}
+.tag-chal{background:#fef1dc;color:#a5762a}
+.rec .name{font-size:20px;font-weight:800}
+.rec.r1 .name{color:#fff}.rec.r2 .name,.rec.r3 .name{color:var(--navy)}
+.rec .or{font-size:13px;font-weight:700;margin:2px 0}
+.rec.r1 .or{color:var(--teal-soft)}.rec.r2 .or,.rec.r3 .or{color:var(--teal)}
+.rec .sub{font-size:13.5px;margin-top:5px}
+.rec.r1 .sub{color:#c9d3e4}.rec.r2 .sub,.rec.r3 .sub{color:var(--muted)}
+.rec .sched{margin-top:12px;padding:10px 13px;border-radius:10px;font-size:13.5px;font-weight:700;display:flex;align-items:flex-start;gap:8px}
+.rec.r1 .sched{background:rgba(255,255,255,.12);color:#fff}
+.rec.r2 .sched,.rec.r3 .sched{background:var(--bg1);color:var(--navy)}
+.rec .hw{margin-top:8px;font-size:12.5px;font-weight:600}
+.rec.r1 .hw{color:#aeb9cc}.rec.r2 .hw,.rec.r3 .hw{color:var(--muted)}
+.rec .note{margin-top:9px;font-size:12px;padding:8px 11px;border-radius:9px;font-weight:600;line-height:1.5}
+.rec.r1 .note{background:rgba(255,255,255,.1);color:var(--teal-soft)}
+.rec.r2 .note,.rec.r3 .note{background:var(--teal-tint);color:#0c8f8b}
+.section-h{font-size:14px;font-weight:800;color:var(--navy);margin:20px 0 10px}
+.chal-box{background:#fffdf7;border:1.5px solid #f0dfb8;border-radius:15px;padding:16px;margin-bottom:13px}
+.chal-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f3ead2}
+.chal-item:last-child{border-bottom:0}
+.chal-item .cn{font-size:14px;font-weight:800;color:var(--navy)}
+.chal-item .cs{font-size:12px;color:var(--muted);margin-top:1px}
+.chal-item .cb{font-size:11px;font-weight:800;color:#a5762a;background:#fef1dc;padding:5px 9px;border-radius:8px;flex:none}
+.consult{background:var(--bg1);border:1px solid var(--line);border-radius:13px;padding:14px 16px;margin-bottom:13px;font-size:13px;color:var(--ink);line-height:1.6}
+.consult b{color:var(--navy)}
+.tt-title{font-size:14px;font-weight:800;color:var(--navy);margin:20px 0 10px;text-align:center}
+.tt{display:grid;grid-template-columns:42px repeat(5,1fr);gap:5px;font-size:11px}
+.tt .h{font-weight:800;color:var(--muted);text-align:center;padding:4px 0;display:flex;align-items:center;justify-content:center}
+.tt .cell{min-height:34px;border-radius:8px;background:var(--bg1);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;text-align:center;padding:3px;font-weight:700;color:#aeb6b8;font-size:9.5px;line-height:1.15}
+.tt .cell.c1{background:var(--navy);color:#fff;border-color:var(--navy)}
+.tt .cell.c2{background:var(--teal-tint);color:var(--navy);border-color:var(--teal)}
+.cta{margin-top:22px;background:var(--navy);border-radius:18px;padding:22px}
+.cta .big{font-size:17px;font-weight:800;color:#fff;text-align:center;margin-bottom:4px}
+.cta .small{font-size:13px;color:#aeb9cc;text-align:center;margin-bottom:16px}
+.cta-btn{display:block;text-decoration:none;text-align:center;font-weight:800;font-size:16px;padding:15px;border-radius:13px;margin-bottom:10px;transition:.15s}
+.cta-reserve{background:var(--teal);color:#fff}.cta-reserve:hover{background:#0c8f8b}
+.cta-kakao{background:#FEE500;color:#3a2a00}.cta-kakao:hover{background:#f5d900}
+.sid{margin-top:6px;font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.5px}
+.kmodal{position:fixed;inset:0;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:18px;z-index:99}
+.kbox{background:#fff;border-radius:18px;max-width:420px;width:100%;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.kbox h3{margin:0 0 6px;font-size:17px;color:var(--navy)}
+.kbox .ks{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:12px}
+.kbox .ks b{color:var(--navy)}
+.kbox pre{white-space:pre-wrap;font-family:inherit;font-size:12.5px;line-height:1.55;background:#f7f9fa;border-radius:10px;padding:12px;max-height:210px;overflow:auto;margin:0 0 14px;color:#334}
+.kbox .kgo{display:block;text-align:center;text-decoration:none;background:#FEE500;color:#3a2a00;font-weight:800;border-radius:12px;padding:14px;font-size:15px}
+.kbox .kx{display:block;width:100%;margin-top:8px;background:none;border:none;color:#8994a6;font-size:13px;cursor:pointer;font-family:inherit}
+.cta-link{display:block;text-align:center;text-decoration:none;color:var(--teal-soft);font-size:13.5px;font-weight:700;margin-top:6px}
+.restart{display:block;width:100%;margin-top:14px;background:none;border:none;cursor:pointer;color:#8994a6;font-size:13px;font-weight:600;font-family:inherit;text-decoration:underline}
+.foot{text-align:center;font-size:12px;color:var(--muted);margin-top:22px;line-height:1.6}
+.step{animation:fade .35s ease both}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.step{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><div class="eyebrow">TALK TALK ENGLISH · ONLINE LIVE</div><h1>우리 아이 맞춤 반 추천</h1><p>리딩 지수와 진단으로 톡톡에서 딱 맞는 수업을 찾아드려요</p></div>
+  <div class="card"><div class="progress" id="prog"></div><div id="app"></div><div class="err" id="err"></div></div>
+  <div class="foot" id="foot"></div>
+</div>
+<script>
+/* ============================================================
+   ★ CONFIG — 여기만 수정하면 됩니다 ★
+   ============================================================ */
+const ACADEMY={
+  footer:"톡톡잉글리쉬 원격학원 (제3271호)\\n모든 수업은 실시간 온라인 LIVE · 시간표는 변동될 수 있어요",
+  reserveUrl:"https://www.talktalkenglish.co.kr",
+  consultUrl:"http://pf.kakao.com/_xnAxcrxj/chat",
+  curriculumUrl:"https://www.talktalkenglish.co.kr",  // ← 홈페이지 주소
+  sheetUrl:""   // ← 구글 Apps Script 웹앱 주소(…/exec)를 따옴표 안에 붙여넣기. 비워두면 전송 안 함
+};
+/* 반 정보. sched → 라벨 자동(택1/주2회/주1회). kind:live|challenge. sub 설명, hw 과제 */
+const C={
+  re_found:{name:"리딩 익스 파운데이션",sub:"저학년 정독 입문",hw:"음독 + 단어퀴즈 + 리딩퀴즈 + 짧은 라이팅",kind:"live",sched:[["화","18:30"],["목","18:30"]]},
+  re1:{name:"리딩 익스 1",sub:"정독 교재 1단계 · 비문학 리딩",hw:"음독 + 단어퀴즈 + 리딩퀴즈 + 라이팅(에세이·토론 교차)",kind:"live",sched:[["월","18:30"],["월","20:30"]]},
+  re2:{name:"리딩 익스 2",sub:"정독 교재 2단계 · 비문학 리딩",hw:"음독 + 단어퀴즈 + 리딩퀴즈 + 라이팅(에세이·토론 교차)",kind:"live",sched:[["수","18:30"],["수","20:30"]]},
+  re3:{name:"리딩 익스 3",sub:"장문 요약·정리 · 비문학 리딩",hw:"음독 + 단어퀴즈 + 리딩퀴즈 + 라이팅(에세이·토론 교차)",kind:"live",sched:[["월","19:30"]]},
+  re4:{name:"리딩 익스 4",sub:"고급 논리 독해 · 비문학 리딩",hw:"음독 + 단어퀴즈 + 리딩퀴즈 + 라이팅(에세이·토론 교차)",kind:"live",sched:[["수","19:30"]]},
+  pw1:{name:"패스웨이 1",sub:"원서토론형 비문학 리딩",hw:"음독 + 단어퀴즈 + 리딩퀴즈 + 라이팅(에세이·토론 교차)",kind:"live",sched:[["화","19:30"],["목","19:30"]]},
+  pw2:{name:"패스웨이 2",sub:"시사·문화 분석 비문학 리딩",hw:"음독 + 단어퀴즈 + 리딩퀴즈 + 라이팅(에세이·토론 교차)",kind:"live",sched:[["화","20:30"],["목","20:30"]]},
+  pw3:{name:"패스웨이 3",sub:"아카데믹 리딩·라이팅 최상위",hw:"음독 + 단어퀴즈 + 리딩퀴즈 + 라이팅(에세이·토론 교차)",kind:"live",sched:[["화","21:30"],["목","21:30"]]},
+  da2:{name:"2점 다독",sub:"AR 2점대 · 부담 적은 라이브 독서",hw:"음독 + 라이팅 + 퀴즈",kind:"live",sched:[["월","18:30"],["수","18:30"]],note:"다독은 4개월 주기로 상향 → 매달 레벨 상담"},
+  da3:{name:"3점 다독",sub:"AR 3점대 · 라이브 독서",hw:"음독 + 라이팅 + 퀴즈",kind:"live",sched:[["월","19:30"],["수","19:30"]],note:"화·목 20:30 반도 있어요 · 매달 레벨 상담"},
+  da4:{name:"4점 다독",sub:"AR 4점대 · 라이브 독서",hw:"음독 + 라이팅 + 퀴즈",kind:"live",sched:[["월","20:30"],["수","20:30"]],note:"매달 레벨 상담"},
+  ww2:{name:"워들리 와이즈 2",sub:"어휘 3점 초중",hw:"월·수·금 워크시트 + 리뷰 테스트",kind:"live",sched:[["화","18:00"],["목","18:00"]]},
+  ww3:{name:"워들리 와이즈 3",sub:"어휘 3점 중후",hw:"월·수·금 워크시트 + 리뷰 테스트",kind:"live",sched:[["화","19:00"],["목","19:00"]]},
+  ww4:{name:"워들리 와이즈 4",sub:"어휘 3점 후~4점 초",hw:"월·수·금 워크시트 + 리뷰 테스트",kind:"live",sched:[["화","20:00"],["목","20:00"]]},
+  ww5:{name:"워들리 와이즈 5",sub:"어휘 4점 초중",hw:"월·수·금 워크시트 + 리뷰 테스트",kind:"live",sched:[["화","21:00"],["목","21:00"]]},
+  ww6:{name:"워들리 와이즈 6",sub:"어휘 4점 후반 이상",hw:"월·수·금 워크시트 + 리뷰 테스트",kind:"live",sched:[["화","22:00"],["목","22:00"]]},
+  bo_green:{name:"보카 워크샵 그린",sub:"보카 3점대 · 저학년 우선 · 주1회",hw:"월·수·금 워크시트 + 리뷰 테스트",kind:"live",sched:[["목","19:30"]]},
+  bo_orange:{name:"보카 워크샵 오렌지",sub:"보카 4점대 · 고학년 · 주1회",hw:"월·수·금 워크시트 + 리뷰 테스트",kind:"live",sched:[["목","20:30"]]},
+  g_기초:{name:"문법 기초",sub:"품사·어순 입문",hw:"문법 문제 풀이",kind:"live",sched:[["월","19:30"]]},
+  g_핵심:{name:"문법 핵심 (중1)",sub:"시제·준동사 기초",hw:"문법 문제 풀이",kind:"live",sched:[["월","20:30"]]},
+  g_기본:{name:"문법 기본 (중2)",sub:"관계사·수동태",hw:"문법 문제 풀이",kind:"live",sched:[["수","19:00"]]},
+  g_실력:{name:"문법 실력 (중3)",sub:"내신 서술형 총정리",hw:"서술형 문제 풀이",kind:"live",sched:[["월","21:35"]]},
+  g_완성:{name:"문법 완성 (고등)",sub:"고등 어법 심화",hw:"고급 어법 문제",kind:"live",sched:[["수","21:10"]]},
+  wr_g56:{name:"영작 G5·6 (5문단 에세이)",sub:"5문단 에세이 라이브",hw:"주간 에세이 작성",kind:"live",sched:[["목","21:30"]]},
+  hist_low:{name:"저학년 세계사",sub:"짧은 세계사 리딩 + 배경지식",hw:"짧은 쓰기·말하기 과제",kind:"live",sched:[["월","20:00"],["목","18:30"]]},
+  sci_g3:{name:"과학 G3 (토요)",sub:"짧은 과학 리딩 + 배경지식",hw:"짧은 쓰기·말하기 과제",kind:"live",sched:[["토","11:00"]]},
+  sci_g45:{name:"과학 G4·5 (토요)",sub:"짧은 과학 리딩 + 배경지식",hw:"짧은 쓰기·말하기 과제",kind:"live",sched:[["토","10:00"]]},
+  sci_g67:{name:"과학 G6·7 (토요)",sub:"고학년 과학 배경지식",hw:"짧은 쓰기·말하기 과제",kind:"live",sched:[["토","9:00"]]},
+  econ_hist:{name:"역사로 배우는 경제사 (토요)",sub:"초3~5 · AR 3.6~4.1 · 역사 속 경제 배경지식",hw:"짧은 쓰기·말하기 과제",kind:"live",sched:[["토","10:00"]]},
+  sotw:{name:"Story of the World (일요)",sub:"시대별 배경지식 리딩",hw:"월1회 PPT 발표",kind:"live",sched:[["일","오전"]],note:"학기별 시간 상이 · 홈페이지 확인"},
+  wsj:{name:"WSJ 시사",sub:"경제 시사 읽기 · 중등",hw:"시사 에세이",kind:"live",sched:[["월","21:00"]]},
+  talk_hum:{name:"이야기 인문학",sub:"철학·고전 인문 · 중등",hw:"인문 에세이",kind:"live",sched:[["금","19:00"]]},
+  onpoint:{name:"On Point 시사 토론",sub:"시사 토론·에세이 · 중등",hw:"토론 준비·에세이",kind:"live",sched:[["금","20:00"]],note:"금요반 또는 토요반(토 9:00) 택1"},
+  igcse:{name:"IGCSE 문학",sub:"케임브리지 문학 · 중등",hw:"문학 분석 에세이",kind:"live",sched:[["금","18:00"]]},
+  ch_book:{name:"원서 챌린지",sub:"원서 정독 학습지",hw:"제출 → 1:1 채점",kind:"challenge",freq:"3주 완성 · 주4회",sched:[]},
+  ch_2000core:{name:"단어 챌린지 · 2000 Core",sub:"AR 2점대 · 기초 어휘",hw:"단어 테스트 (누적 아님)",kind:"challenge",freq:"3주 완성 · 주4회",sched:[]},
+  ch_wm_mid:{name:"단어 챌린지 · Word Master 중등",sub:"AR 3~4점대",hw:"단어 테스트 (누적 아님)",kind:"challenge",freq:"3주 완성 · 주4회",sched:[]},
+  ch_wm_high:{name:"단어 챌린지 · Word Master 고등",sub:"AR 4점대 이상",hw:"단어 테스트 (누적 아님)",kind:"challenge",freq:"3주 완성 · 주4회",sched:[]},
+  ch_toefl:{name:"단어 챌린지 · TOEFL Voca",sub:"AR 5점대 이상 · 초5↑",hw:"단어 테스트 (누적 아님)",kind:"challenge",freq:"3주 완성 · 주4회",sched:[]},
+  ch_grammar:{name:"문법 챌린지",sub:"매일 문법 학습지",hw:"매일 제출 → 1:1 첨삭",kind:"challenge",sched:[]},
+  wr_g2:{name:"영작 챌린지 G2 (영어일기)",sub:"글쓰기 입문",hw:"매일 영작 → 1:1 첨삭",kind:"challenge",sched:[]},
+  wr_g3:{name:"영작 챌린지 G3 (2~3문단)",sub:"문단 쓰기",hw:"매일 영작 → 1:1 첨삭",kind:"challenge",sched:[]},
+  wr_g4:{name:"영작 챌린지 G4 (4문단)",sub:"구조화 글쓰기",hw:"매일 영작 → 1:1 첨삭",kind:"challenge",sched:[]},
+  ch_q_kids:{name:"질문력 챌린지 · Kids",sub:"저학년 사고·질문력",hw:"매일 학습지 제출 → 1:1 채점",kind:"challenge",sched:[]},
+  ch_q_junior:{name:"질문력 챌린지 · Junior",sub:"고학년 사고·질문력",hw:"매일 학습지 제출 → 1:1 채점",kind:"challenge",sched:[]},
+  ch_r_kids:{name:"문해력 챌린지 · Kids",sub:"저학년 문해력",hw:"매일 학습지 제출 → 1:1 채점",kind:"challenge",sched:[]},
+  ch_r_junior:{name:"문해력 챌린지 · Junior",sub:"고학년 문해력",hw:"매일 학습지 제출 → 1:1 채점",kind:"challenge",sched:[]}
+};
+/* 레벨 기준 (AR) */
+const R={reFoundMax:3.75,re1Max:3.95,re2Max:4.5,re3Max:5.0,re3MinG:4,re4MinG:5,
+  pw1G:3,pw1AR:3.8,pw2G:4,pw2AR:4.0,pw3G:5,pw3AR:4.3,
+  ww3AR:3.5,ww4AR:3.8,ww5AR:4.3,ww6AR:4.8,ww6MinG:4,vYoungG:2,bocaOrangeAR:4.0,bocaOrangeG:3,
+  sci67G:5,sci67AR:5.0,sci45G:4,sci45AR:4.0,bgLowMaxG:4,bgLowAR:3.5,advG:6,advAR:5.0,sotwG:4,sotwAR:4.0};
+const LEX2AR=[[200,1.5],[300,2.0],[400,2.5],[500,3.0],[600,3.5],[650,3.7],[700,4.0],[800,4.5],[900,5.0],[1000,5.5],[1100,6.0]];
+
+const SURVEY=[
+ {id:"focus",title:"가장 키우고 싶은 힘은? (복수 선택)",desc:"여러 개 골라도 돼요.",
+  opts:[["reading","리딩 독해력 (비문학·정독)"],["vocab","어휘력"],["grammar","문법·정확성"],["writing","영작·글쓰기"],["speaking","토론·발표·에세이"],["background","배경지식·교양(세계사·과학·인문)"]]},
+ {id:"grammar",title:"영어 문법 노출 경험은?",desc:"여러 개 고르면 가장 높은 단계로 배정돼요.",
+  opts:[["g0","배운 적 없어요 (품사·어순부터)"],["g1","패턴은 알지만 수일치·인칭이 자주 틀려요"],["g2","중1 시제까지 학습"],["g3","중2 관계사·수동태까지 훑음"],["g4","중등 완성, 고등 대비 필요"]]},
+ {id:"writing",title:"영어로 글쓰기는 어느 정도?",desc:"여러 개 고르면 가장 높은 수준으로 배정돼요.",
+  opts:[["w0","영어 일기 정도"],["w1","2~3문단"],["w2","4문단"],["w3","5문단 에세이"]]},
+ {id:"situation",title:"학습 상황과 강도는?",desc:"톡톡 리딩익스·패스웨이는 매주 에세이 있는 빡센 종합 리딩이에요.",
+  opts:[["hard","톡톡 집중 · 매주 에세이까지 빡세게"],["balance","톡톡 집중 · 적당한 밸런스"],["parallel","오프라인 학원 병행 · 부담 적게"]]},
+ {id:"interest",title:"관심 있는 배경지식 분야는? (교양용)",desc:"",
+  opts:[["history","역사·세계사"],["science","과학"],["humanities","인문·예술"],["none","특별히 없음"]]},
+ {id:"method",title:"선호하는 수업 방식은?",desc:"둘 다 고르면 정규 + 챌린지로 함께 추천해요.",
+  opts:[["live","실시간 라이브 정규 수업"],["daily","집에서 매일 자기주도 챌린지"]]}
+];
+
+/* ============================================================ 로직 ============================================================ */
+const DAYS=["월","화","수","목","금"];
+let st={step:0,name:"",grade:"",phone:"",agree:false,idxType:"lexile",idxVal:"",noIndex:false,ans:{},sent:false};
+const app=document.getElementById('app'),errBox=document.getElementById('err');
+document.getElementById('foot').innerHTML=ACADEMY.footer.replace(/\\n/g,"<br>");
+function lexToAr(l){if(l<=200)return 1.5;for(let i=0;i<LEX2AR.length-1;i++){const[x0,y0]=LEX2AR[i],[x1,y1]=LEX2AR[i+1];if(l<=x1)return +(y0+(y1-y0)*(l-x0)/(x1-x0)).toFixed(2);}return 6.0;}
+const GRADE_AR={1:1.8,2:2.3,3:2.8,4:3.3,5:3.7,6:4.0,7:4.3,8:4.6,9:5.0}; // 지수 모를 때 학년 기준 예상 AR (보수적으로)
+function getAR(){if(st.noIndex)return GRADE_AR[G()]||3.0;const v=parseFloat(st.idxVal);return st.idxType==='ar'?v:lexToAr(v);}
+function G(){return parseInt(st.grade,10);}
+function gradeLabel(g){return g<=6?`초등 ${g}학년`:`중${g-6}`;}
+function band(ar){return ar<2.5?"기초":ar<3.5?"초급":ar<4.5?"중급":"고급";}
+function sel(id){return st.ans[id]||[];}
+
+function coreReading(ar,g){if(ar<R.reFoundMax)return're_found';if(ar<R.re1Max)return're1';if(ar<R.re2Max)return're2';if(ar<R.re3Max)return g>=R.re3MinG?'re3':'re2';return g>=R.re4MinG?'re4':(g>=R.re3MinG?'re3':'re2');}
+function readingPair(ar,g){const re=coreReading(ar,g);const map={re2:['pw1',R.pw1G,R.pw1AR],re3:['pw2',R.pw2G,R.pw2AR],re4:['pw3',R.pw3G,R.pw3AR]};let pw=null;if(map[re]){const[c,mg,mar]=map[re];if(g>=mg&&ar>=mar)pw=c;}return{re,pw};}
+function dado(ar){return ar>=4?'da4':ar>=3?'da3':'da2';}
+function dadoPair(ar){const d=dado(ar);return[d,d==='da4'?'re1':'re_found'];}
+function wordly(ar,g){let p=(ar>=R.ww6AR&&g>=R.ww6MinG)?'ww6':ar>=R.ww5AR?'ww5':ar>=R.ww4AR?'ww4':ar>=R.ww3AR?'ww3':'ww2';if(g<=R.vYoungG&&(p==='ww4'||p==='ww5'||p==='ww6'))p='ww3';return p;}
+function boca(ar,g){return(ar>=R.bocaOrangeAR&&g>=R.bocaOrangeG)?'bo_orange':'bo_green';}
+function grammarCls(g){const order=['g_기초','g_핵심','g_기본','g_실력','g_완성'];const minG={g_기초:1,g_핵심:3,g_기본:3,g_실력:4,g_완성:7};const gv=sel('grammar').map(v=>({g0:0,g1:1,g2:2,g3:3,g4:4}[v]));let i=gv.length?Math.max(...gv):0;while(i>0&&g<minG[order[i]])i--;return order[i];}
+function writingLevel(){const wv=sel('writing').map(v=>({w0:0,w1:1,w2:2,w3:3}[v]));return wv.length?Math.max(...wv):0;}
+function writingChal(){return['wr_g2','wr_g3','wr_g4'][Math.min(writingLevel(),2)];}
+function vocaChallenge(ar,g){if(ar<3)return'ch_2000core';if(ar<4)return'ch_wm_mid';if(g<4)return'ch_wm_mid';if(ar>=5&&g>=5)return'ch_toefl';return'ch_wm_high';}
+function bgByInterest(ar,g){for(const it of sel('interest')){
+  if(it==='science'){if(g>=R.sci67G&&ar>=R.sci67AR)return'sci_g67';if(g>=R.sci45G&&ar>=R.sci45AR)return'sci_g45';if(g<=R.bgLowMaxG&&ar>=R.bgLowAR)return'sci_g3';}
+  if(it==='history'){if(g>=3&&g<=5&&ar>=3.6&&ar<=4.1)return'econ_hist';if(g>=R.sotwG&&ar>=R.sotwAR)return'sotw';if(g<=R.bgLowMaxG&&ar>=R.bgLowAR)return'hist_low';}
+  if(it==='humanities'){if(g>=R.advG&&ar>=R.advAR)return'talk_hum';if(g>=3&&g<=5&&ar>=3.6&&ar<=4.1)return'econ_hist';}
+ }return null;}
+function lightBg(ar,g){const bi=bgByInterest(ar,g);if(bi)return bi;if(g>=3&&g<=5&&ar>=3.6&&ar<=4.1)return'econ_hist';if(g>=R.sci45G&&ar>=R.sci45AR)return'sci_g45';if(g<=4&&ar>=R.bgLowAR)return'hist_low';return null;}
+
+function compute(){
+  const ar=getAR(),g=G();
+  const f=sel('focus'),method=sel('method'),sit=sel('situation');
+  const parallel=sit.includes('parallel'),hard=sit.includes('hard');
+  const wantDaily=method.includes('daily'),wantLive=method.includes('live');
+  const challengeOnly=wantDaily&&!wantLive;         // 챌린지만 원함
+  const young=g<=3, lowHigh=(g>=5&&ar<=3.9);         // 레벨 낮은 고학년/중등 (3점대 전체 3.1~3.9)
+  const wReading=f.includes('reading')||f.includes('speaking');
+  const recs=[],used=new Set();
+  const addS=id=>{if(id&&!used.has(id)){recs.push({t:'s',id});used.add(id);}};
+  const addP=(a,b,desc)=>{if(!a)return;if(b&&!used.has(a)&&!used.has(b)){recs.push({t:'p',a,b,desc});used.add(a);used.add(b);}else addS(a);};
+  if(!challengeOnly){
+    // 1순위 주력
+    if(parallel){ addS(lightBg(ar,g)||boca(ar,g)); }
+    else if(lowHigh){ addS(grammarCls(g)); }                    // 레벨낮은 고학년/중등 → 문법 우선
+    else if(young&&wReading&&!hard){ addP(...dadoPair(ar),"원서 다독 또는 정독 리딩익스로 대안 선택 (택1)"); }          // 저학년 부담적게/밸런스 → 다독
+    else if(wReading){ const rp=readingPair(ar,g); addP(rp.re,rp.pw,"둘 다 비문학 리딩 + 매주 에세이 · 서로 대안 과목이에요 (택1)"); } // 빡세게 → 리딩익스/패스웨이 택1
+    else if(f.includes('grammar')){ addS(grammarCls(g)); }
+    else if(f.includes('writing')&&writingLevel()>=3){ addS('wr_g56'); }
+    else if(f.includes('vocab')){ addS(wordly(ar,g)); }
+    else if(f.includes('background')){ addS(bgByInterest(ar,g)||wordly(ar,g)); }
+    if(recs.length===0){ if(lowHigh)addS(grammarCls(g)); else if(young)addP(...dadoPair(ar),"원서 다독 또는 정독 리딩익스로 대안 선택 (택1)"); else{const rp=readingPair(ar,g);addP(rp.re,rp.pw,"둘 다 비문학 리딩 + 매주 에세이 · 서로 대안 과목이에요 (택1)");} }
+    if(recs.length===0) addS(wordly(ar,g));
+    if(!lowHigh){ // 정상 레벨: 2·3순위 = 단어/교양 정규
+      addS(parallel?boca(ar,g):wordly(ar,g));           // 2순위 = 단어 정규
+      if(recs.length<2) addS(boca(ar,g));
+      let bg3=bgByInterest(ar,g)||lightBg(ar,g);       // 3순위 = 교양 정규
+      if(g>=4&&ar>=4.0&&(f.includes('speaking')||!bg3)) bg3='sotw';  // 4학년+·4점+ (특히 토론/말하기) → SOTW
+      if(bg3) addS(bg3);
+      if(recs.length<3&&f.includes('grammar')) addS(grammarCls(g));
+      if(recs.length<3){const bo=boca(ar,g);addS(used.has(bo)?(bo==='bo_green'?'bo_orange':'bo_green'):bo);}
+    } else { // 레벨낮은 고학년/중등: 문법 + 학년 안 부딪히는 정규 어휘·교양 업셀
+      addS(boca(ar,g));                                  // 보카 주1회 (어휘)
+      const bg=bgByInterest(ar,g); if(bg) addS(bg);      // 자격되는 교양 있으면
+    }
+  }
+  const reg=recs.slice(0,3);
+  // 챌린지
+  const ch=[];
+  if(lowHigh||challengeOnly){
+    ch.push('ch_book');                       // 원서
+    ch.push(vocaChallenge(ar,g));             // 단어
+    if(f.includes('grammar')&&challengeOnly) ch.push('ch_grammar');
+    if(f.includes('writing')) ch.push(writingChal());
+  } else {
+    if(wReading||wantDaily) ch.push('ch_book');
+    if(f.includes('vocab')&&wantDaily) ch.push(vocaChallenge(ar,g));
+    if(f.includes('writing')&&(writingLevel()<3||wantDaily)) ch.push(writingChal());
+    if(f.includes('grammar')&&wantDaily) ch.push('ch_grammar');
+  }
+  ch.push(g<=3?'ch_q_kids':'ch_q_junior');
+  const chal=[...new Set(ch)].filter(x=>!reg.some(r=>r.id===x||r.a===x||r.b===x)).slice(0,4);
+  return {ar,g,reg,chal,parallel,wantDaily,challengeOnly,lowHigh};
+}
+function schedLabel(id){const c=C[id],s=c.sched;
+  if(c.kind==='challenge'||!s.length)return (c.freq||"3주 완성 · 주4~5회")+" · 자기주도 (평일)";
+  if(s.length===1)return`주1회 · ${s[0][0]}요일 ${s[0][1]}`;
+  const days=[...new Set(s.map(x=>x[0]))],t=s[0][1],same=s.every(x=>x[1]===t);
+  if(id.startsWith('ww')||id.startsWith('da')) // 워들리·다독 = 주2회
+    return same?`주2회 · ${days.join('·')} ${t}`:`주2회 · ${s.map(x=>x[0]+' '+x[1]).join(', ')}`;
+  // 그 외 같은 수업 = 택1
+  if(days.length===1)return`${days[0]}요일 ${s.map(x=>x[1]).join(' 또는 ')} 중 택1 (주1회)`;
+  if(same)return`${days.join('·')} ${t} 중 택1 (주1회)`;
+  return`${s.map(x=>x[0]+' '+x[1]).join(' 또는 ')} 중 택1 (주1회)`;}
+
+/* ---------- render ---------- */
+function renderProg(){const steps=1+SURVEY.length;const p=document.getElementById('prog');p.innerHTML="";for(let i=0;i<steps;i++){const s=document.createElement('span');if(st.step>i||st.step>=steps)s.className='on';p.appendChild(s);}}
+function setErr(m){errBox.textContent=m||"";}
+function render(){setErr("");renderProg();document.getElementById('prog').style.display=st.step>SURVEY.length?'none':'flex';if(st.step===0)return renderInfo();if(st.step<=SURVEY.length)return renderSurvey(st.step-1);return renderResult();}
+
+function renderInfo(){
+  const idx=st.idxType;
+  app.innerHTML=`<div class="step">
+    <div class="step-label">STEP 1 · 아이 정보</div><div class="step-title">우리 아이를 알려주세요</div><div class="step-desc"> </div>
+    <div class="field"><label for="nm">아이 이름</label><input id="nm" type="text" placeholder="예: 김서윤" value="${st.name.replace(/"/g,'&quot;')}"></div>
+    <div class="field"><label for="gr">학년</label><select id="gr"><option value="">선택</option>
+      <optgroup label="초등">${[1,2,3,4,5,6].map(g=>`<option value="${g}" ${st.grade==g?'selected':''}>초등 ${g}학년</option>`).join('')}</optgroup>
+      <optgroup label="중등">${[7,8,9].map(g=>`<option value="${g}" ${st.grade==g?'selected':''}>중${g-6}</option>`).join('')}</optgroup></select></div>
+    <div class="field"><label for="ph">학부모 연락처 (휴대폰 또는 카톡 ID)</label><input id="ph" type="text" inputmode="text" placeholder="예: 010-1234-5678" value="${st.phone.replace(/"/g,'&quot;')}"></div>
+    <div class="field"><label>리딩 지수 (택1 입력)</label>
+      <div class="pills" style="margin-bottom:10px"><div class="pill ${idx==='lexile'?'on':''}" data-idx="lexile">Lexile</div><div class="pill ${idx==='ar'?'on':''}" data-idx="ar">AR 지수</div></div>
+      <input id="iv" type="number" step="${idx==='ar'?'0.1':'1'}" inputmode="decimal" placeholder="${idx==='lexile'?'예: 650':'예: 3.8'}" value="${st.idxVal}" ${st.noIndex?'disabled style="opacity:.4"':''}>
+      <div class="noidx ${st.noIndex?'on':''}" id="noidx"><div class="box">${st.noIndex?'✓':''}</div><span>리딩 지수를 몰라요 (학년 기준으로 예상 추천받을게요)</span></div>
+    </div>
+    <div class="field"><div class="noidx ${st.agree?'on':''}" id="agree"><div class="box">${st.agree?'✓':''}</div><span>[필수] 개인정보 수집·이용에 동의해요</span></div>
+      <div class="agree-txt">수집 항목: 아이 이름·학년·리딩 지수·설문 응답·학부모 연락처<br>이용 목적: 반 추천 결과 안내 및 수강 상담 연락<br>보유 기간: 수집일로부터 1년 (요청 시 즉시 삭제)<br>동의를 거부할 수 있으나, 이 경우 진단을 진행할 수 없어요.</div></div>
+    <div class="row"><button class="btn btn-primary" id="next">설문 시작</button></div></div>`;
+  document.getElementById('agree').onclick=()=>{sync();st.agree=!st.agree;render();};
+  document.querySelectorAll('.pill[data-idx]').forEach(b=>b.onclick=()=>{sync();st.idxType=b.dataset.idx;st.idxVal="";render();});
+  document.getElementById('noidx').onclick=()=>{sync();st.noIndex=!st.noIndex;render();};
+  document.getElementById('next').onclick=()=>{sync();if(!st.name.trim())return setErr("아이 이름을 입력해 주세요.");if(!st.grade)return setErr("학년을 선택해 주세요.");if(st.phone.replace(/[\s-]/g,'').length<4)return setErr("상담 안내를 받을 학부모 연락처를 입력해 주세요.");if(!st.noIndex&&(st.idxVal===""||isNaN(parseFloat(st.idxVal))))return setErr("리딩 지수를 입력하거나 '몰라요'를 선택해 주세요.");if(!st.agree)return setErr("개인정보 수집·이용에 동의해 주세요.");st.step=1;render();};
+}
+function sync(){const a=document.getElementById('nm');if(a)st.name=a.value;const b=document.getElementById('gr');if(b)st.grade=b.value;const c=document.getElementById('iv');if(c)st.idxVal=c.value;const d=document.getElementById('ph');if(d)st.phone=d.value;}
+
+function renderSurvey(i){
+  const q=SURVEY[i],cur=sel(q.id);
+  app.innerHTML=`<div class="step"><div class="step-label">STEP ${i+2} · 진단</div><div class="step-title">${q.title}</div>${q.desc?`<div class="step-desc">${q.desc}</div>`:'<div class="step-desc"> </div>'}
+    <div class="multi-hint">✓ 여러 개 선택할 수 있어요</div>
+    <div class="opts">${q.opts.map(([v,l])=>`<div class="opt ${cur.includes(v)?'on':''}" data-v="${v}"><span class="box">${cur.includes(v)?'✓':''}</span><span>${l}</span></div>`).join('')}</div>
+    <div class="row"><button class="btn btn-ghost" id="back">이전</button><button class="btn btn-primary" id="next" ${cur.length?'':'disabled'}>${i===SURVEY.length-1?(st.noIndex?'상담 연결':'결과 보기'):'다음'}</button></div></div>`;
+  document.querySelectorAll('.opt').forEach(el=>el.onclick=()=>{let a=sel(q.id).slice();const v=el.dataset.v;a.includes(v)?a=a.filter(x=>x!==v):a.push(v);st.ans[q.id]=a;render();});
+  document.getElementById('back').onclick=()=>{st.step--;render();};
+  document.getElementById('next').onclick=()=>{if(!sel(q.id).length)return setErr("하나 이상 선택해 주세요.");st.step++;render();};
+}
+function goHome(){st={step:0,name:"",grade:"",phone:"",agree:false,idxType:"lexile",idxVal:"",noIndex:false,ans:{},sent:false};render();}
+
+function tag(id){return C[id].kind==='live'?`<span class="type-tag tag-live">정규 라이브</span>`:`<span class="type-tag tag-chal">자기주도 챌린지</span>`;}
+function recCard(rec,rank){
+  const rc=`r${rank}`; const rl=rank===1?'⭐ 주력 (1순위)':rank===2?'2순위':'3순위';
+  if(rec.t==='p'){const a=C[rec.a],b=C[rec.b];
+    const hw = a.hw===b.hw ? `📝 과제: ${a.hw}` : `📝 과제: ${a.name} — ${a.hw}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${b.name} — ${b.hw}`;
+    return `<div class="rec ${rc}"><div class="rankrow"><span class="rank">${rl}</span>${tag(rec.a)}</div>
+      <div class="name">${a.name}</div><div class="or">— 또는 —</div><div class="name">${b.name}</div>
+      <div class="sub">${rec.desc||'서로 대안 과목 · <b>택1</b>로 선택'}</div>
+      <div class="sched">🗓️ ${a.name}: ${schedLabel(rec.a)}<br>&nbsp;&nbsp;&nbsp;${b.name}: ${schedLabel(rec.b)}</div>
+      <div class="hw">${hw}</div></div>`;}
+  const c=C[rec.id];
+  let note=c.note||'';
+  if(rec.id==='sci_g45') note=(note?note+' · ':'')+'대안 교양: 역사로 배우는 경제사 (비슷한 레벨)';
+  return `<div class="rec ${rc}"><div class="rankrow"><span class="rank">${rl}</span>${tag(rec.id)}</div>
+    <div class="name">${c.name}</div><div class="sub">${c.sub}</div>
+    <div class="sched">🗓️ ${schedLabel(rec.id)}</div><div class="hw">📝 과제: ${c.hw}</div>${note?`<div class="note">※ ${note}</div>`:''}</div>`;
+}
+function ctaBlock(){return `<div class="cta"><div class="big">다음 단계를 선택하세요</div><div class="small">이 추천은 참고용이에요. 정확한 레벨은 상담으로 확정해 드려요.</div>
+  <a class="cta-btn cta-reserve" data-track="수강 예약" href="${ACADEMY.reserveUrl}" target="_blank" rel="noopener">📋 다음 달 수강 예약하기</a>
+  <a class="cta-btn cta-kakao" id="kakaoBtn" href="${ACADEMY.consultUrl}" target="_blank" rel="noopener">💬 결과 보내고 카톡 상담하기</a>
+  <a class="cta-link" data-track="커리큘럼 보기" href="${ACADEMY.curriculumUrl}" target="_blank" rel="noopener">톡톡 커리큘럼 더 보기 →</a>
+  <button class="restart" id="restart">처음부터 다시 하기</button></div>`;}
+
+/* ===== 구글 시트 전송 (결과 화면 뜰 때 1회) ===== */
+function recName(rec){return rec.t==='p'?`${C[rec.a].name} / ${C[rec.b].name}`:C[rec.id].name;}
+function sendToSheet(r){
+  if(st.sent||!ACADEMY.sheetUrl)return;st.sent=true;
+  const answers={};SURVEY.forEach(q=>{answers[q.title]=sel(q.id).map(v=>(q.opts.find(o=>o[0]===v)||[v,v])[1]).join(', ');});
+  const qs=new URLSearchParams(location.search);
+  const payload={
+    name:st.name.trim(),grade:gradeLabel(G()),phone:st.phone.trim(),
+    index:st.noIndex?'모름 → 학년 기준 예상 추천(레벨테스트 필요)':(st.idxType==='lexile'?`Lexile ${st.idxVal}`:`AR ${st.idxVal}`),
+    ar:(r&&!isNaN(r.ar))?r.ar.toFixed(1):'',
+    id:st.sid,
+    live:r?((st.noIndex?'[예상] ':'')+(r.reg.length?r.reg.map(recName).join(' | '):'(라이브 미희망 · 챌린지만)')):'레벨 상담 필요 (리딩 지수 모름)',
+    challenge:r?r.chal.map(id=>C[id].name).join(' | '):'',
+    answers,
+    source:qs.get('utm_source')||qs.get('from')||document.referrer||'직접 접속',
+    agree:'동의'
+  };
+  fetch(ACADEMY.sheetUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).catch(e=>console.error('시트 전송 실패',e));
+}
+function trackClick(label){
+  if(!ACADEMY.sheetUrl||!st.sid)return;
+  const body=JSON.stringify({id:st.sid,action:label});
+  try{navigator.sendBeacon(ACADEMY.sheetUrl,new Blob([body],{type:'text/plain;charset=utf-8'}));}
+  catch(e){fetch(ACADEMY.sheetUrl,{method:'POST',mode:'no-cors',keepalive:true,headers:{'Content-Type':'text/plain;charset=utf-8'},body});}
+}
+function buildKakaoMsg(){
+  const r=st.lastR,nm=st.name.trim()||'아이';
+  const L=[`[톡톡 반 추천 진단 결과]`,`진단번호: ${st.sid}`,``,`👧 ${nm} · ${gradeLabel(G())}`,`📞 학부모 연락처: ${st.phone.trim()||'-'}`];
+  L.push(`📖 리딩: ${st.noIndex?'지수 모름 (학년 기준 예상 추천)':(st.idxType==='lexile'?'Lexile '+st.idxVal:'AR '+st.idxVal)+(r?` (AR≈${r.ar.toFixed(1)})`:'')}`);
+  if(r&&r.reg.length){L.push('',`🎯 추천 정규 수업`);r.reg.forEach((x,i)=>{const ids=x.t==='p'?[x.a,x.b]:[x.id];L.push(`${i+1}. ${ids.map(id=>C[id].name+' — '+schedLabel(id)).join(' / ')}`);});}
+  if(r&&r.chal.length){L.push('',`🔥 추천 챌린지`);r.chal.forEach(id=>L.push(`· ${C[id].name}`));}
+  L.push('',`📝 설문 응답`);
+  SURVEY.forEach(q=>{const v=sel(q.id).map(v=>(q.opts.find(o=>o[0]===v)||[v,v])[1]).join(', ');if(v)L.push(`· ${q.title.replace(/\s*\(.*?\)\s*$/,'')}: ${v}`);});
+  L.push('',`이 결과로 수강 상담 받고 싶어요!`);
+  return L.join('\n');
+}
+function copyText(t){
+  if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(t).then(()=>true).catch(()=>fallbackCopy(t));
+  return Promise.resolve(fallbackCopy(t));
+}
+function fallbackCopy(t){try{const a=document.createElement('textarea');a.value=t;a.setAttribute('readonly','');a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();const ok=document.execCommand('copy');a.remove();return ok;}catch(e){return false;}}
+function openKakaoModal(e){
+  e.preventDefault();
+  const msg=buildKakaoMsg();
+  copyText(msg).then(ok=>{
+    const m=document.createElement('div');m.className='kmodal';
+    m.innerHTML=`<div class="kbox"><h3>${ok?'✅ 진단 결과가 복사됐어요':'📋 진단 결과를 보내주세요'}</h3>
+      <div class="ks">${ok?'아래 버튼으로 카톡 채팅창이 열리면 <b>입력칸을 길게 눌러 [붙여넣기]</b> → 전송만 해주세요. 선생님이 결과를 보고 바로 상담해 드려요.':'자동 복사가 안 됐어요. 아래 내용을 길게 눌러 복사한 뒤 카톡 채팅창에 붙여넣어 주세요.'}</div>
+      <pre id="kmsg">${msg.replace(/</g,'&lt;')}</pre>
+      <a class="kgo" id="kgo" href="${ACADEMY.consultUrl}" target="_blank" rel="noopener">💬 카톡 채팅창 열기</a>
+      <button class="kx" id="kx">닫기</button></div>`;
+    document.body.appendChild(m);
+    document.getElementById('kgo').onclick=()=>{trackClick('카톡 상담');copyText(msg);setTimeout(()=>m.remove(),300);};
+    document.getElementById('kx').onclick=()=>m.remove();
+    m.onclick=ev=>{if(ev.target===m)m.remove();};
+  });
+}
+function bindCta(){
+  const kb=document.getElementById('kakaoBtn');if(kb)kb.onclick=openKakaoModal;
+  document.getElementById('restart').onclick=goHome;
+  document.querySelectorAll('[data-track]').forEach(a=>a.addEventListener('click',()=>trackClick(a.dataset.track)));
+}
+function renderResult(){
+  const r=compute(),nm=st.name.trim()||"우리 아이";
+  if(!st.sid){const d=new Date();st.sid='TT'+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'-'+String(Math.floor(Math.random()*9000)+1000);}
+  st.lastR=r;
+  sendToSheet(r);
+  const idxLabel=st.noIndex?`리딩 지수 미입력 (학년 기준 예상 AR≈${r.ar.toFixed(1)})`:st.idxType==='lexile'?`Lexile ${st.idxVal} (환산 AR≈${r.ar.toFixed(1)})`:`AR ${st.idxVal}`;
+  let html=`<div class="step"><div class="result-hi"><div class="kid"><b>${nm}</b> · ${gradeLabel(r.g)} · ${idxLabel} · ${band(r.ar)} 단계</div><h2>톡톡 맞춤 추천이에요</h2><div class="sid">진단번호 ${st.sid}</div></div>`;
+  let intro;
+  if(r.challengeOnly) intro="라이브 없이 <b>자기주도 챌린지만</b> 추천했어요. 3주 동안 주4~5회 학습지를 풀고 1:1로 채점받는 과정이에요.";
+  else if(r.lowHigh) intro="현재 레벨에서는 저학년 반과 함께 진행하기 어려워, <b>학년에 맞는 문법 + 학년 무관 챌린지(단어·원서)</b>를 우선 추천했어요.";
+  else if(r.wantDaily) intro="<b>라이브 정규 + 자기주도 챌린지</b>를 함께 추천해요. 톡톡은 정규 + 챌린지 밸런스를 가장 추천해요.";
+  else intro="<b>라이브 정규 수업 조합</b>(정규 2~3개)을 추천해요.";
+  if(st.noIndex) intro=`리딩 지수를 몰라서 <b>${gradeLabel(r.g)} 평균 수준(AR≈${r.ar.toFixed(1)})</b>으로 가정한 <b>예상 추천</b>이에요. 무료 레벨 테스트 + 상담으로 반을 딱 맞게 확정해 드려요.<br><br>`+intro;
+  if(r.parallel) intro+=" 오프라인 병행이라 리딩익스·패스웨이 대신 부담이 적은 교양·보카 위주로 골랐어요.";
+  html+=`<div class="consult">🎯 ${intro}</div>`;
+  r.reg.forEach((rec,i)=>{html+=recCard(rec,i+1);});
+  if(r.chal.length){html+=`<div class="section-h">🔥 습관 챌린지 (자기주도 · 3주 완성 · 1:1 채점)</div><div class="chal-box">${r.chal.map(id=>`<div class="chal-item"><div><div class="cn">${C[id].name}</div><div class="cs">${(C[id].freq||'3주 완성 · 주4~5회')} · ${C[id].hw}</div></div><span class="cb">자기주도</span></div>`).join('')}</div>`;}
+  // 주간 시간표
+  const flat=[];r.reg.forEach((rec,i)=>{const cc=i===0?'c1':'c2';if(rec.t==='p'){flat.push([rec.a,cc]);flat.push([rec.b,cc]);}else flat.push([rec.id,cc]);});
+  const map={};flat.forEach(([id,c])=>C[id].sched.forEach(([d,t])=>{if(DAYS.includes(d)){const k=d+'|'+t;if(!map[k])map[k]={c,n:C[id].name};}}));
+  const times=[...new Set(Object.keys(map).map(k=>k.split('|')[1]))].sort((a,b)=>tm(a)-tm(b));
+  const weekend=flat.map(x=>x[0]).filter(id=>C[id].sched.some(([d])=>!DAYS.includes(d)));
+  if(times.length){let g=`<div class="tt"><div class="h"></div>${DAYS.map(d=>`<div class="h">${d}</div>`).join('')}`;times.forEach(t=>{g+=`<div class="h">${t}</div>`;DAYS.forEach(d=>{const cl=map[d+'|'+t];g+=cl?`<div class="cell ${cl.c}">${cl.n.replace(/ /g,'').slice(0,6)}</div>`:`<div class="cell">·</div>`;});});g+=`</div>`;html+=`<div class="tt-title">추천 수업 주간 시간표</div>${g}`;}
+  if(weekend.length)html+=`<div class="consult">🗓️ 주말·기타: ${[...new Set(weekend)].map(id=>C[id].name+' — '+schedLabel(id)).join(' · ')}</div>`;
+  html+=ctaBlock()+`</div>`;
+  app.innerHTML=html;bindCta();
+}
+function renderConsult(){
+  const nm=st.name.trim()||"우리 아이";
+  sendToSheet(null);
+  const lm={reading:"리딩 독해",vocab:"어휘",grammar:"문법",writing:"영작",speaking:"토론·에세이",background:"배경지식"};
+  const its=sel('focus').map(v=>lm[v]).filter(Boolean);
+  let html=`<div class="step"><div class="result-hi"><div class="kid"><b>${nm}</b> · ${gradeLabel(G())}</div><h2>레벨 상담으로 안내해 드릴게요</h2></div>
+    <div class="consult">🔎 리딩 지수를 아직 모르시는군요! 정확한 반은 <b>무료 레벨 테스트 + 상담</b>으로 딱 맞게 잡아드려요.${its.length?`<br><br>${nm} 학생은 <b>${its.join(', ')}</b> 쪽에 관심이 있는 걸로 체크됐어요. 상담 때 이 부분을 중심으로 봐드릴게요.`:''}</div>
+    <div class="consult">📌 톡톡은 짧은 레벨 테스트로 AR을 확인한 뒤, 학년·성향에 맞춰 정규 2~3개(또는 정규 + 챌린지) 조합을 추천해 드려요.</div>`;
+  html+=ctaBlock()+`</div>`;
+  app.innerHTML=html;bindCta();
+}
+function tm(t){if(!/^\d/.test(t))return 9999;const[h,m]=t.split(':').map(Number);return h*60+(m||0);}
+render();
+</script>
+</body>
+</html>
